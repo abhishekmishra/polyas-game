@@ -1,4 +1,5 @@
 const SIMULATE_INTERVAL = 5; // Define the time interval for simulation in milliseconds
+const TOTAL_SIMS = 3; // Total number of simulations to run
 
 let polyasGame;
 let pickBallButton;
@@ -12,12 +13,12 @@ function setup() {
   console.log('Canvas created:', document.querySelector('canvas'));
   polyasGame = new PolyasGame(2);
 
-  pickBallButton = createButton('Pick Ball');
-  pickBallButton.position(10, 10);
-  pickBallButton.mousePressed(() => {
-    const pickedColor = polyasGame.pickAndAddBall();
-    console.log('Picked Ball Color:', pickedColor === 0 ? 'Red' : 'Blue');
-  });
+  // pickBallButton = createButton('Pick Ball');
+  // pickBallButton.position(10, 10);
+  // pickBallButton.mousePressed(() => {
+  //   const pickedColor = polyasGame.pickAndAddBall();
+  //   console.log('Picked Ball Color:', pickedColor === 0 ? 'Red' : 'Blue');
+  // });
 
   simulateButton = createButton('Simulate');
   simulateButton.position(100, 10);
@@ -39,7 +40,19 @@ function setup() {
 function draw() {
   background(220);
 
-  polyasGame.simulate();
+  polyasGame.simulate(() => {
+   // if siumlation is stopped check simulationCounter against TOTAL_SIMS
+    if (polyasGame.simulateMode === false && PolyasGame.simulationCounter >= TOTAL_SIMS) {
+        polyasGame.simulateMode = false; // Stop simulation if max simulations reached
+        console.log('Simulation stopped: Maximum number of simulations reached.');
+        // change button label to simulate
+        simulateButton.html('Simulate'); // Reset the simulation button label
+      } else if (polyasGame.simulateMode === false) {
+        polyasGame = new PolyasGame(2); // Reset the game state
+        polyasGame.simulateMode = true; // Start simulation if not already started
+        console.log('Simulation started');
+      }
+  });
   polyasGame.draw();
 }
 
@@ -142,7 +155,7 @@ class PolyasGame {
     };
   }
 
-  simulate() {
+  simulate(onFull) {
     if (!this.simulateMode) return; // Exit if simulateMode is false
 
     const currentTime = millis();
@@ -151,8 +164,8 @@ class PolyasGame {
     if (deltaTime >= SIMULATE_INTERVAL) {
       if (this.urn.length >= this.maxBalls) {
         this.simulateMode = false; // Stop simulation if max balls reached
-        simulateButton.html('Simulate'); // Update button label
         console.log('Simulation stopped: Maximum number of balls reached.');
+        onFull(); // Call the callback function when simulation stops
         return;
       }
 
