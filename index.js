@@ -176,6 +176,7 @@ class TimeSeriesGraph {
     this.height = height;
     this.dataSeries = []; // Array to hold multiple time series
     this.ensembleAverageSeries = []; // Separate series for ensemble average
+    this.ensembleAverageColor = color(50, 150, 50); // Green color for ensemble average
 
     TimeSeriesGraph.instance = this; // Save the instance
   }
@@ -212,7 +213,7 @@ class TimeSeriesGraph {
     this.ensembleAverageSeries = ensembleAverage;
 
     // Debug: Print the updated ensemble average
-    console.log('Updated Ensemble Average:', this.ensembleAverageSeries);
+    // console.log('Updated Ensemble Average:', this.ensembleAverageSeries);
   }
 
   draw() {
@@ -234,7 +235,7 @@ class TimeSeriesGraph {
 
     // Plot the ensemble average series
     if (this.ensembleAverageSeries.length > 0) {
-      stroke(0); // Black for ensemble average
+      stroke(this.ensembleAverageColor); // Green for ensemble average
       noFill();
       beginShape();
       this.ensembleAverageSeries.forEach((value, index) => {
@@ -258,5 +259,16 @@ class TimeSeriesGraph {
       });
       endShape();
     });
+
+    // Add label for ensemble average
+    noStroke();
+    fill(0);
+    textAlign(LEFT);
+    textSize(12);
+    text("Ensemble average", this.x, this.y + this.height + 40);
+
+    // Draw line for ensemble average color
+    stroke(this.ensembleAverageColor);
+    line(this.x + 120, this.y + this.height + 35, this.x + 160, this.y + this.height + 35);
   }
 }
