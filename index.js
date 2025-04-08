@@ -44,6 +44,8 @@ function draw() {
 }
 
 class PolyasGame {
+  static simulationCounter = 0; // Make simulationCounter static to persist across instances
+
   constructor(startingBalls) {
     // Ensure the first two balls are one red (0) and one blue (1)
     this.urn = [0, 1];
@@ -57,8 +59,12 @@ class PolyasGame {
     this.lastSimulateTime = 0; // Track the last time simulate was called
     this.maxBalls = Math.floor((300 / 20) ** 2); // Calculate max balls based on urn size and ball size
 
+    // Increment simulationCounter for each new instance
+    PolyasGame.simulationCounter++;
+
     // Create a TimeSeriesGraph instance for the red percentage history
     this.graph = new TimeSeriesGraph(400, 50, 300, 300);
+    this.graph.addDataSeries(); // Add a series for ensemble average
   }
 
   draw() {
@@ -109,7 +115,17 @@ class PolyasGame {
     // Update the red percentage history
     const stats = this.stats();
     this.redPercentageHistory.push(stats.redPercentage);
-    this.graph.addDataPoint(stats.redPercentage); // Add data point to the graph
+
+    // Add data point to the graph for the current simulation
+    const seriesIndex = PolyasGame.simulationCounter; // Use static simulationCounter
+    if (!this.graph.dataSeries[seriesIndex]) {
+      this.graph.addDataSeries(); // Add a new series if it doesn't exist
+    }
+    this.graph.addDataPoint(seriesIndex, stats.redPercentage);
+
+    console.log(`SimulationCounter (static): ${PolyasGame.simulationCounter}`); // Debug: Log the static simulation counter
+    console.log(`Current Series Index: ${seriesIndex}`); // Debug: Log the current series index
+    console.log(`Data Series Length: ${this.graph.dataSeries.length}`); // Debug: Log the number of data series in the graph
 
     // Return the colour of the picked ball (0 for red, 1 for blue)
     return pickedBall;
@@ -147,16 +163,30 @@ class PolyasGame {
 }
 
 class TimeSeriesGraph {
+  static instance = null; // Static instance to ensure a single graph is shared
+
   constructor(x, y, width, height) {
+    if (TimeSeriesGraph.instance) {
+      return TimeSeriesGraph.instance; // Return the existing instance if it exists
+    }
+
     this.x = x;
     this.y = y;
     this.width = width;
     this.height = height;
-    this.data = [];
+    this.dataSeries = []; // Array to hold multiple time series
+
+    TimeSeriesGraph.instance = this; // Save the instance
   }
 
-  addDataPoint(value) {
-    this.data.push(value);
+  addDataSeries() {
+    this.dataSeries.push([]); // Add a new empty time series
+  }
+
+  addDataPoint(seriesIndex, value) {
+    if (this.dataSeries[seriesIndex]) {
+      this.dataSeries[seriesIndex].push(value); // Add value to the specified time series
+    }
   }
 
   draw() {
@@ -176,15 +206,18 @@ class TimeSeriesGraph {
     textAlign(CENTER);
     text("Time", this.x + this.width / 2, this.y + this.height + 20); // X-axis label
 
-    // Plot the data line
-    stroke(255, 0, 0);
-    noFill();
-    beginShape();
-    this.data.forEach((value, index) => {
-      const x = this.x + (index / this.data.length) * this.width;
-      const y = map(value, 0, 100, this.y + this.height, this.y);
-      vertex(x, y);
+    // Plot each time series
+    this.dataSeries.forEach((series, seriesIndex) => {
+      const lineColor = color(255, 0, 0, 255 - seriesIndex * 50); // Different shades of red for each series
+      stroke(lineColor);
+      noFill();
+      beginShape();
+      series.forEach((value, index) => {
+        const x = this.x + (index / series.length) * this.width;
+        const y = map(value, 0, 100, this.y + this.height, this.y);
+        vertex(x, y);
+      });
+      endShape();
     });
-    endShape();
   }
 }
