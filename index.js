@@ -1,5 +1,8 @@
+const SIMULATE_INTERVAL = 25; // Define the time interval for simulation in milliseconds
+
 let polyasGame;
 let pickBallButton;
+let simulateButton;
 
 console.log("Polyá's Urn Simulation");
 
@@ -14,10 +17,19 @@ function setup() {
     const pickedColor = polyasGame.pickAndAddBall();
     console.log('Picked Ball Color:', pickedColor === 0 ? 'Red' : 'Blue');
   });
+
+  simulateButton = createButton('Simulate');
+  simulateButton.position(100, 10);
+  simulateButton.mousePressed(() => {
+    polyasGame.simulateMode = !polyasGame.simulateMode; // Toggle simulate mode
+    simulateButton.html(polyasGame.simulateMode ? 'Stop Simulation' : 'Simulate'); // Update button label
+  });
 }
 
 function draw() {
   background(220);
+
+  polyasGame.simulate();
   polyasGame.draw();
 }
 
@@ -31,6 +43,9 @@ class PolyasGame {
 
     this.lastPickedBall = null; // Initialize last picked ball as null
     this.redPercentageHistory = []; // Initialize history for red percentage
+    this.simulateMode = false; // Initialize simulate mode as false
+    this.lastSimulateTime = 0; // Track the last time simulate was called
+    this.maxBalls = Math.floor((300 / 20) ** 2); // Calculate max balls based on urn size and ball size
   }
 
   draw() {
@@ -130,5 +145,24 @@ class PolyasGame {
       vertex(x, y);
     });
     endShape();
+  }
+
+  simulate() {
+    if (!this.simulateMode) return; // Exit if simulateMode is false
+
+    const currentTime = millis();
+    const deltaTime = currentTime - this.lastSimulateTime;
+
+    if (deltaTime >= SIMULATE_INTERVAL) {
+      if (this.urn.length >= this.maxBalls) {
+        this.simulateMode = false; // Stop simulation if max balls reached
+        simulateButton.html('Simulate'); // Update button label
+        console.log('Simulation stopped: Maximum number of balls reached.');
+        return;
+      }
+
+      this.pickAndAddBall();
+      this.lastSimulateTime = currentTime;
+    }
   }
 }
