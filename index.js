@@ -1,7 +1,7 @@
 // Define the time interval for simulation in milliseconds
 const SIMULATE_INTERVAL = 1;
 // Total number of simulations to run
-let TOTAL_SIMS = 3;
+let TOTAL_SIMS = 10;
 
 let polyasGame;
 let pickBallButton;
