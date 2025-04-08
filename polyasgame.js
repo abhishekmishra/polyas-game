@@ -29,7 +29,7 @@ class PolyasGame {
   
     static reset() {
       PolyasGame.graph.reset();
-      this.simulationCounter = 0; // Reset simulation counter
+      this.simulationCounter = -1; // Reset simulation counter
     }
   
     draw() {
