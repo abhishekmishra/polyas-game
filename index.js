@@ -28,6 +28,8 @@ class PolyasGame {
 
     // Initialize the rest of the urn with random values (0 for red, 1 for blue)
     this.urn.push(...Array.from({ length: startingBalls - 2 }, () => Math.round(Math.random())));
+
+    this.lastPickedBall = null; // Initialize last picked ball as null
   }
 
   draw() {
@@ -50,6 +52,16 @@ class PolyasGame {
       noStroke();
       ellipse(x, y, ballSize);
     });
+
+    // Display the status message below the urn
+    const stats = this.stats();
+    const lastPicked = this.lastPickedBall !== null ? (this.lastPickedBall === 0 ? 'Red' : 'Blue') : 'None';
+    const statusMessage = `Last Picked: ${lastPicked}, Red: ${stats.redPercentage.toFixed(2)}%, Blue: ${stats.bluePercentage.toFixed(2)}%`;
+    fill(0);
+    noStroke();
+    textSize(16);
+    textAlign(CENTER);
+    text(statusMessage, 200, 380);
   }
 
   pickAndAddBall() {
@@ -60,7 +72,20 @@ class PolyasGame {
     // Add a new ball of the same colour to the urn
     this.urn.push(pickedBall);
 
+    this.lastPickedBall = pickedBall; // Update last picked ball
+
     // Return the colour of the picked ball (0 for red, 1 for blue)
     return pickedBall;
+  }
+
+  stats() {
+    const totalBalls = this.urn.length;
+    const redCount = this.urn.filter(ball => ball === 0).length;
+    const blueCount = totalBalls - redCount;
+
+    return {
+      redPercentage: (redCount / totalBalls) * 100,
+      bluePercentage: (blueCount / totalBalls) * 100
+    };
   }
 }
