@@ -50,6 +50,7 @@ function draw() {
   // add title text at the top center of the canvas
   textAlign(CENTER);
   textSize(18);
+  noStroke();
   fill(0);
   text("Polya's Game Simulation", width / 2, 20);
   textSize(16);
