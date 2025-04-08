@@ -77,7 +77,8 @@ class TimeSeriesGraph {
   
       // Plot the ensemble average series
       if (this.ensembleAverageSeries.length > 0) {
-        stroke(this.ensembleAverageColor); // Green for ensemble average
+        stroke(this.ensembleAverageColor);
+        strokeWeight(3);
         noFill();
         beginShape();
         this.ensembleAverageSeries.forEach((value, index) => {
@@ -86,11 +87,12 @@ class TimeSeriesGraph {
           vertex(x, y);
         });
         endShape();
+        strokeWeight(1);
       }
   
       // Plot each time series
       this.dataSeries.forEach((series, seriesIndex) => {
-        const lineColor = color(255, 0, 0, 255 - seriesIndex * 50); // Different shades of red for each series
+        const lineColor = color(255, 0, seriesIndex * 10);
         stroke(lineColor);
         noFill();
         beginShape();
@@ -111,7 +113,9 @@ class TimeSeriesGraph {
   
       // Draw line for ensemble average color
       stroke(this.ensembleAverageColor);
+      strokeWeight(3);
       line(this.x + 120, this.y + this.height + 35, this.x + 160, this.y + this.height + 35);
+      strokeWeight(1);
     }
   }
   
