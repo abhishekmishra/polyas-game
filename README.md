@@ -8,3 +8,4 @@ Polya's game is a probabilistic process involving balls of two colors: red and b
 
 This process is repeated for a large number of steps, and the game is used to study the long-term behavior of the system, particularly its ergodicity.
 
+TODO add video ref from ergodicity youtube channel.
