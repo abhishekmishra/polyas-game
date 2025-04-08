@@ -1,7 +1,7 @@
 // Define the time interval for simulation in milliseconds
-const SIMULATE_INTERVAL = 5;
+const SIMULATE_INTERVAL = 1;
 // Total number of simulations to run
-const TOTAL_SIMS = 3;
+let TOTAL_SIMS = 3;
 
 let polyasGame;
 let pickBallButton;
@@ -20,14 +20,14 @@ function setup() {
   //   console.log('Picked Ball Color:', pickedColor === 0 ? 'Red' : 'Blue');
   // });
 
-  simulateButton = createButton("Simulate");
+  simulateButton = createButton("Simulate ▶️");
   simulateButton.position(70, 30);
   simulateButton.mousePressed(() => {
     // Toggle simulate mode
     polyasGame.simulateMode = !polyasGame.simulateMode;
     // Update button label
     simulateButton.html(
-      polyasGame.simulateMode ? "Stop Simulation" : "Simulate"
+      polyasGame.simulateMode ? "Stop 🚫" : "Simulate ▶️"
     );
   });
 
@@ -40,7 +40,28 @@ function setup() {
     // Ensure simulation mode is off
     polyasGame.simulateMode = false;
     // Reset the simulation button label
-    simulateButton.html("Simulate");
+    simulateButton.html("Simulate ▶️");
+  });
+
+  // label for input
+  const label = createDiv("# Runs");
+  label.position(170, 30);
+
+  // Create a text input to get the number of
+  // simulations from the user
+  // start with default value of TOTAL_SIMS
+  const input = createInput(TOTAL_SIMS.toString(), "number");
+  input.position(220, 30);
+  input.size(50);
+  // on change set the TOTAL_SIMS to the value in the input
+  input.input(() => {
+    const value = parseInt(input.value(), 10);
+    if (!isNaN(value) && value > 0) {
+      TOTAL_SIMS = value;
+      console.log("Total simulations set to:", TOTAL_SIMS);
+    } else {
+      console.error("Invalid input for total simulations:", input.value());
+    }
   });
 }
 
@@ -65,7 +86,7 @@ function draw() {
       polyasGame.simulateMode = false;
       console.log("Simulation stopped: Maximum number of simulations reached.");
       // Reset the simulation button label
-      simulateButton.html("Simulate");
+      simulateButton.html("Simulate ▶️");
     } else if (polyasGame.simulateMode === false) {
       // Reset the game state
       polyasGame = new PolyasGame(2);
