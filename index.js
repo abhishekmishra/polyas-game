@@ -56,6 +56,9 @@ class PolyasGame {
     this.simulateMode = false; // Initialize simulate mode as false
     this.lastSimulateTime = 0; // Track the last time simulate was called
     this.maxBalls = Math.floor((300 / 20) ** 2); // Calculate max balls based on urn size and ball size
+
+    // Create a TimeSeriesGraph instance for the red percentage history
+    this.graph = new TimeSeriesGraph(400, 50, 300, 300);
   }
 
   draw() {
@@ -90,7 +93,7 @@ class PolyasGame {
     text(statusMessage, 200, 380);
 
     // Draw the graph on the right side of the canvas
-    this.drawGraph();
+    this.graph.draw();
   }
 
   pickAndAddBall() {
@@ -106,6 +109,7 @@ class PolyasGame {
     // Update the red percentage history
     const stats = this.stats();
     this.redPercentageHistory.push(stats.redPercentage);
+    this.graph.addDataPoint(stats.redPercentage); // Add data point to the graph
 
     // Return the colour of the picked ball (0 for red, 1 for blue)
     return pickedBall;
@@ -120,41 +124,6 @@ class PolyasGame {
       redPercentage: (redCount / totalBalls) * 100,
       bluePercentage: (blueCount / totalBalls) * 100
     };
-  }
-
-  drawGraph() {
-    // Draw the graph for red percentage
-    const graphX = 400;
-    const graphY = 50;
-    const graphWidth = 300;
-    const graphHeight = 300;
-
-    // Draw axes
-    stroke(0);
-    line(graphX, graphY, graphX, graphY + graphHeight); // Y-axis
-    line(graphX, graphY + graphHeight, graphX + graphWidth, graphY + graphHeight); // X-axis
-
-    // Add labels
-    noStroke();
-    fill(0);
-    textSize(12);
-    textAlign(CENTER);
-    text("%", graphX - 20, graphY + graphHeight / 2 - 10);
-    text("of", graphX - 20, graphY + graphHeight / 2);
-    text("Red", graphX - 20, graphY + graphHeight / 2 + 10);
-    textAlign(CENTER);
-    text("Time", graphX + graphWidth / 2, graphY + graphHeight + 20); // X-axis label
-
-    // Plot the red percentage line
-    stroke(255, 0, 0);
-    noFill();
-    beginShape();
-    this.redPercentageHistory.forEach((percentage, index) => {
-      const x = graphX + (index / this.redPercentageHistory.length) * graphWidth;
-      const y = map(percentage, 0, 100, graphY + graphHeight, graphY);
-      vertex(x, y);
-    });
-    endShape();
   }
 
   simulate() {
@@ -174,5 +143,48 @@ class PolyasGame {
       this.pickAndAddBall();
       this.lastSimulateTime = currentTime;
     }
+  }
+}
+
+class TimeSeriesGraph {
+  constructor(x, y, width, height) {
+    this.x = x;
+    this.y = y;
+    this.width = width;
+    this.height = height;
+    this.data = [];
+  }
+
+  addDataPoint(value) {
+    this.data.push(value);
+  }
+
+  draw() {
+    // Draw axes
+    stroke(0);
+    line(this.x, this.y, this.x, this.y + this.height); // Y-axis
+    line(this.x, this.y + this.height, this.x + this.width, this.y + this.height); // X-axis
+
+    // Add labels
+    noStroke();
+    fill(0);
+    textSize(12);
+    textAlign(CENTER);
+    text("%", this.x - 20, this.y + this.height / 2 - 10);
+    text("of", this.x - 20, this.y + this.height / 2);
+    text("Red", this.x - 20, this.y + this.height / 2 + 10);
+    textAlign(CENTER);
+    text("Time", this.x + this.width / 2, this.y + this.height + 20); // X-axis label
+
+    // Plot the data line
+    stroke(255, 0, 0);
+    noFill();
+    beginShape();
+    this.data.forEach((value, index) => {
+      const x = this.x + (index / this.data.length) * this.width;
+      const y = map(value, 0, 100, this.y + this.height, this.y);
+      vertex(x, y);
+    });
+    endShape();
   }
 }
