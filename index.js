@@ -4,7 +4,7 @@ let pickBallButton;
 console.log("Polyá's Urn Simulation");
 
 function setup() {
-  createCanvas(400, 400);
+  createCanvas(800, 400); // Double the canvas width to accommodate the graph
   console.log('Canvas created:', document.querySelector('canvas'));
   polyasGame = new PolyasGame(2);
 
@@ -30,6 +30,7 @@ class PolyasGame {
     this.urn.push(...Array.from({ length: startingBalls - 2 }, () => Math.round(Math.random())));
 
     this.lastPickedBall = null; // Initialize last picked ball as null
+    this.redPercentageHistory = []; // Initialize history for red percentage
   }
 
   draw() {
@@ -62,6 +63,9 @@ class PolyasGame {
     textSize(16);
     textAlign(CENTER);
     text(statusMessage, 200, 380);
+
+    // Draw the graph on the right side of the canvas
+    this.drawGraph();
   }
 
   pickAndAddBall() {
@@ -73,6 +77,10 @@ class PolyasGame {
     this.urn.push(pickedBall);
 
     this.lastPickedBall = pickedBall; // Update last picked ball
+
+    // Update the red percentage history
+    const stats = this.stats();
+    this.redPercentageHistory.push(stats.redPercentage);
 
     // Return the colour of the picked ball (0 for red, 1 for blue)
     return pickedBall;
@@ -87,5 +95,40 @@ class PolyasGame {
       redPercentage: (redCount / totalBalls) * 100,
       bluePercentage: (blueCount / totalBalls) * 100
     };
+  }
+
+  drawGraph() {
+    // Draw the graph for red percentage
+    const graphX = 400;
+    const graphY = 50;
+    const graphWidth = 300;
+    const graphHeight = 300;
+
+    // Draw axes
+    stroke(0);
+    line(graphX, graphY, graphX, graphY + graphHeight); // Y-axis
+    line(graphX, graphY + graphHeight, graphX + graphWidth, graphY + graphHeight); // X-axis
+
+    // Add labels
+    noStroke();
+    fill(0);
+    textSize(12);
+    textAlign(CENTER);
+    text("%", graphX - 20, graphY + graphHeight / 2 - 10);
+    text("of", graphX - 20, graphY + graphHeight / 2);
+    text("Red", graphX - 20, graphY + graphHeight / 2 + 10);
+    textAlign(CENTER);
+    text("Time", graphX + graphWidth / 2, graphY + graphHeight + 20); // X-axis label
+
+    // Plot the red percentage line
+    stroke(255, 0, 0);
+    noFill();
+    beginShape();
+    this.redPercentageHistory.forEach((percentage, index) => {
+      const x = graphX + (index / this.redPercentageHistory.length) * graphWidth;
+      const y = map(percentage, 0, 100, graphY + graphHeight, graphY);
+      vertex(x, y);
+    });
+    endShape();
   }
 }
