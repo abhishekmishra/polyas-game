@@ -1,4 +1,5 @@
 let polyasGame;
+let pickBallButton;
 
 console.log("Polyá's Urn Simulation");
 
@@ -6,6 +7,13 @@ function setup() {
   createCanvas(400, 400);
   console.log('Canvas created:', document.querySelector('canvas'));
   polyasGame = new PolyasGame(2);
+
+  pickBallButton = createButton('Pick Ball');
+  pickBallButton.position(10, 10);
+  pickBallButton.mousePressed(() => {
+    const pickedColor = polyasGame.pickAndAddBall();
+    console.log('Picked Ball Color:', pickedColor === 0 ? 'Red' : 'Blue');
+  });
 }
 
 function draw() {
@@ -42,5 +50,17 @@ class PolyasGame {
       noStroke();
       ellipse(x, y, ballSize);
     });
+  }
+
+  pickAndAddBall() {
+    // Pick a random ball from the urn
+    const randomIndex = Math.floor(Math.random() * this.urn.length);
+    const pickedBall = this.urn[randomIndex];
+
+    // Add a new ball of the same colour to the urn
+    this.urn.push(pickedBall);
+
+    // Return the colour of the picked ball (0 for red, 1 for blue)
+    return pickedBall;
   }
 }
