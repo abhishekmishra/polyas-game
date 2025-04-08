@@ -1,4 +1,4 @@
-const SIMULATE_INTERVAL = 25; // Define the time interval for simulation in milliseconds
+const SIMULATE_INTERVAL = 5; // Define the time interval for simulation in milliseconds
 
 let polyasGame;
 let pickBallButton;
@@ -44,7 +44,7 @@ function draw() {
 }
 
 class PolyasGame {
-  static simulationCounter = 0; // Make simulationCounter static to persist across instances
+  static simulationCounter = -1; // Make simulationCounter static to persist across instances
 
   constructor(startingBalls) {
     // Ensure the first two balls are one red (0) and one blue (1)
@@ -123,9 +123,9 @@ class PolyasGame {
     }
     this.graph.addDataPoint(seriesIndex, stats.redPercentage);
 
-    console.log(`SimulationCounter (static): ${PolyasGame.simulationCounter}`); // Debug: Log the static simulation counter
-    console.log(`Current Series Index: ${seriesIndex}`); // Debug: Log the current series index
-    console.log(`Data Series Length: ${this.graph.dataSeries.length}`); // Debug: Log the number of data series in the graph
+    // console.log(`SimulationCounter (static): ${PolyasGame.simulationCounter}`); // Debug: Log the static simulation counter
+    // console.log(`Current Series Index: ${seriesIndex}`); // Debug: Log the current series index
+    // console.log(`Data Series Length: ${this.graph.dataSeries.length}`); // Debug: Log the number of data series in the graph
 
     // Return the colour of the picked ball (0 for red, 1 for blue)
     return pickedBall;
@@ -175,6 +175,7 @@ class TimeSeriesGraph {
     this.width = width;
     this.height = height;
     this.dataSeries = []; // Array to hold multiple time series
+    this.ensembleAverageSeries = []; // Separate series for ensemble average
 
     TimeSeriesGraph.instance = this; // Save the instance
   }
@@ -186,7 +187,32 @@ class TimeSeriesGraph {
   addDataPoint(seriesIndex, value) {
     if (this.dataSeries[seriesIndex]) {
       this.dataSeries[seriesIndex].push(value); // Add value to the specified time series
+      this.updateEnsembleAverage(); // Update ensemble average after adding a data point
     }
+  }
+
+  updateEnsembleAverage() {
+    if (this.dataSeries.length === 0) return; // No simulations to average
+
+    const ensembleAverage = [];
+    const numSimulations = this.dataSeries.length;
+
+    // Calculate the average for each time step
+    for (let i = 0; i < this.dataSeries[0].length; i++) {
+      let sum = 0;
+      for (let j = 0; j < numSimulations; j++) {
+        if (this.dataSeries[j][i] !== undefined) {
+          sum += this.dataSeries[j][i];
+        }
+      }
+      ensembleAverage[i] = sum / numSimulations;
+    }
+
+    // Update the ensemble average series
+    this.ensembleAverageSeries = ensembleAverage;
+
+    // Debug: Print the updated ensemble average
+    console.log('Updated Ensemble Average:', this.ensembleAverageSeries);
   }
 
   draw() {
@@ -205,6 +231,19 @@ class TimeSeriesGraph {
     text("Red", this.x - 20, this.y + this.height / 2 + 10);
     textAlign(CENTER);
     text("Time", this.x + this.width / 2, this.y + this.height + 20); // X-axis label
+
+    // Plot the ensemble average series
+    if (this.ensembleAverageSeries.length > 0) {
+      stroke(0); // Black for ensemble average
+      noFill();
+      beginShape();
+      this.ensembleAverageSeries.forEach((value, index) => {
+        const x = this.x + (index / this.ensembleAverageSeries.length) * this.width;
+        const y = map(value, 0, 100, this.y + this.height, this.y);
+        vertex(x, y);
+      });
+      endShape();
+    }
 
     // Plot each time series
     this.dataSeries.forEach((series, seriesIndex) => {
