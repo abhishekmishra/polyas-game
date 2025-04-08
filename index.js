@@ -3,6 +3,7 @@ const SIMULATE_INTERVAL = 25; // Define the time interval for simulation in mill
 let polyasGame;
 let pickBallButton;
 let simulateButton;
+let resetButton;
 
 console.log("Polyá's Urn Simulation");
 
@@ -23,6 +24,15 @@ function setup() {
   simulateButton.mousePressed(() => {
     polyasGame.simulateMode = !polyasGame.simulateMode; // Toggle simulate mode
     simulateButton.html(polyasGame.simulateMode ? 'Stop Simulation' : 'Simulate'); // Update button label
+  });
+
+  resetButton = createButton('Reset');
+  resetButton.position(250, 10);
+  resetButton.mousePressed(() => {
+    polyasGame = new PolyasGame(2); // Reset the game state
+    polyasGame.simulateMode = false; // Ensure simulation mode is off
+    simulateButton.html('Simulate'); // Reset the simulation button label
+    console.log('Game reset');
   });
 }
 
