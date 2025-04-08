@@ -1,5 +1,7 @@
-const SIMULATE_INTERVAL = 5; // Define the time interval for simulation in milliseconds
-const TOTAL_SIMS = 3; // Total number of simulations to run
+// Define the time interval for simulation in milliseconds
+const SIMULATE_INTERVAL = 5;
+// Total number of simulations to run
+const TOTAL_SIMS = 3;
 
 let polyasGame;
 let pickBallButton;
@@ -7,8 +9,8 @@ let simulateButton;
 let resetButton;
 
 function setup() {
-  createCanvas(800, 400); // Double the canvas width to accommodate the graph
-  console.log("Canvas created:", document.querySelector("canvas"));
+  // Double the canvas width to accommodate the graph
+  createCanvas(800, 400);
   polyasGame = new PolyasGame(2);
 
   // pickBallButton = createButton('Pick Ball');
@@ -21,20 +23,24 @@ function setup() {
   simulateButton = createButton("Simulate");
   simulateButton.position(70, 30);
   simulateButton.mousePressed(() => {
-    polyasGame.simulateMode = !polyasGame.simulateMode; // Toggle simulate mode
+    // Toggle simulate mode
+    polyasGame.simulateMode = !polyasGame.simulateMode;
+    // Update button label
     simulateButton.html(
       polyasGame.simulateMode ? "Stop Simulation" : "Simulate"
-    ); // Update button label
+    );
   });
 
   resetButton = createButton("Reset");
   resetButton.position(20, 30);
   resetButton.mousePressed(() => {
     PolyasGame.reset();
-    polyasGame = new PolyasGame(2); // Reset the game state
-    polyasGame.simulateMode = false; // Ensure simulation mode is off
-    simulateButton.html("Simulate"); // Reset the simulation button label
-    console.log("Game reset");
+    // Reset the game state
+    polyasGame = new PolyasGame(2);
+    // Ensure simulation mode is off
+    polyasGame.simulateMode = false;
+    // Reset the simulation button label
+    simulateButton.html("Simulate");
   });
 }
 
@@ -54,13 +60,16 @@ function draw() {
       polyasGame.simulateMode === false &&
       PolyasGame.simulationCounter >= TOTAL_SIMS
     ) {
-      polyasGame.simulateMode = false; // Stop simulation if max simulations reached
+      // Stop simulation if max simulations reached
+      polyasGame.simulateMode = false;
       console.log("Simulation stopped: Maximum number of simulations reached.");
-      // change button label to simulate
-      simulateButton.html("Simulate"); // Reset the simulation button label
+      // Reset the simulation button label
+      simulateButton.html("Simulate");
     } else if (polyasGame.simulateMode === false) {
-      polyasGame = new PolyasGame(2); // Reset the game state
-      polyasGame.simulateMode = true; // Start simulation if not already started
+      // Reset the game state
+      polyasGame = new PolyasGame(2);
+      // Start simulation if not already started
+      polyasGame.simulateMode = true;
       console.log("Simulation started");
     }
   });
